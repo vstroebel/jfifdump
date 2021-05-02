@@ -1,0 +1,13 @@
+[package]
+name = "jfifdump"
+version = "0.1.0"
+description = "Dump structure of a jpeg file"
+authors = ["Volker Ströbel <volkerstroebel@mysurdity.de>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+categories = ["multimedia::images"]
+keywords = ["jpg", "jpeg", "image"]
+readme = "README.md"
+
+[dependencies]
+clap = "2"
