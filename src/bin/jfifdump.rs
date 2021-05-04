@@ -37,8 +37,6 @@ pub fn main() {
     if let Err(err) = res {
         eprintln!("Error reading file: {}", err);
         exit(1);
-    } else {
-        println!("Have a nice day");
     }
 }
 
