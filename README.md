@@ -2,6 +2,37 @@
 
 Dump structure of a jpeg file
 
+## Installation
+
+```
+$ cargo install jfifdump
+```
+
+## Usage
+
+```
+$ jfifdump image.jpeg
+```
+
+## Command-line options
+
+```
+USAGE:
+    jfifdump [FLAGS] [OPTIONS] <INPUT>
+
+FLAGS:
+    -v, --verbose    Make output more verbose
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --format <FORMAT>    Output format [default: text]  [possible values: text, json]
+
+ARGS:
+    <INPUT>    Jpeg file to use
+
+```
+
 ## License
 
 This project is licensed under either of
