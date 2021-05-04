@@ -1,5 +1,8 @@
 # JFIF-Dump
 
+[![crates.io badge](https://img.shields.io/crates/v/jfifdump.svg)](https://crates.io/crates/jfifdump/)
+[![Rust](https://github.com/vstroebel/jfifdump/actions/workflows/rust.yml/badge.svg)](https://github.com/vstroebel/jfifdump/actions/workflows/rust.yml)
+
 Dump structure of a jpeg file
 
 ## Installation
