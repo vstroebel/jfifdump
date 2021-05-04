@@ -2,10 +2,12 @@ mod error;
 mod reader;
 mod handler;
 mod json;
+mod text;
 
 pub use error::JfifError;
 pub use reader::{Reader, Segment, App0Jfif, Frame, FrameComponent, Scan, ScanComponent, Dht, Dqt, Dac, Rst};
 pub use handler::Handler;
+pub use text::TextFormat;
 pub use crate::json::JsonFormat;
 
 use std::fs::File;
