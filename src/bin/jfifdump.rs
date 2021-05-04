@@ -1,4 +1,4 @@
-use clap::{App, crate_name, crate_version, crate_description, crate_authors, Arg};
+use clap::{App, crate_name, crate_version, crate_description, Arg};
 use std::fs::File;
 use std::process::exit;
 use jfifdump::*;
@@ -44,7 +44,6 @@ fn create_clap_app() -> App<'static, 'static> {
     App::new(crate_name!())
         .version(crate_version!())
         .about(crate_description!())
-        .author(crate_authors!())
         .arg(Arg::with_name("FORMAT")
             .short("f")
             .long("format")
