@@ -45,8 +45,11 @@ fn read(file: File) -> Result<(), JfifError> {
             Segment::App0Jfif(jfif) => handle_app0_jfif(&jfif),
             Segment::Dqt(tables) => handle_dqt(&tables),
             Segment::Dht(tables) => handle_dht(&tables),
+            Segment::Dac(dac) => handle_dac(&dac),
             Segment::Frame(frame) => handle_frame(&frame),
             Segment::Scan(scan) => handle_scan(&scan),
+            Segment::Dri(restart) => handle_dri(restart),
+            Segment::Rst(rst) => handle_rst(&rst),
             Segment::Comment(data) => handle_comment(&data),
             Segment::Unknown { marker, data } => handle_unknown(marker, &data),
         }
@@ -56,9 +59,7 @@ fn read(file: File) -> Result<(), JfifError> {
 }
 
 fn print_ascii_value(v: u8) {
-    if (b'0'..=b'9').contains(&v)
-        || (b'a'..=b'z').contains(&v)
-        || (b'A'..=b'Z').contains(&v) {
+    if v.is_ascii_graphic() || v == 0x20 {
         print!("{}", v as char);
     } else {
         print!("\\x{:#04X}", v);
@@ -76,7 +77,19 @@ fn handle_app(nr: u8, data: &[u8]) {
 }
 
 fn handle_app0_jfif(jfif: &App0Jfif) {
-    println!("App(0x0): JFIF\n  {:?}", jfif);
+    println!("App(0x0): JFIF");
+
+    println!("  Version: {}.{:02}", jfif.major, jfif.minor);
+
+    let unit = match jfif.unit {
+        0 => "pixel".to_owned(),
+        1 => "dots per inch".to_owned(),
+        2 => "dots per cm".to_owned(),
+        _ => format!("Unknown unit: {}", jfif.unit),
+    };
+
+    println!("  Density: {}x{} {}", jfif.x_density, jfif.y_density, unit);
+    println!("  Thumbnail: {}x{}", jfif.x_thumbnail, jfif.y_thumbnail);
 }
 
 fn handle_dqt(tables: &[Dqt]) {
@@ -104,7 +117,7 @@ fn handle_dht(tables: &[Dht]) {
     println!("DHT:");
 
     for table in tables {
-        print!("  Table {}: Class {}\n    Code lengths: ", table.destination, table.class);
+        print!("  Table {}: Class {}\n    Code lengths: ", table.dest, table.class);
         for (i, &v) in table.code_lengths.iter().enumerate() {
             if i > 0 {
                 print!(", ");
@@ -112,6 +125,14 @@ fn handle_dht(tables: &[Dht]) {
             print!("{}", v)
         }
         println!();
+    }
+}
+
+fn handle_dac(dac: &Dac) {
+    println!("DAC:");
+
+    for param in &dac.params {
+        println!("  Class: {}   Dest: {}    Value: {}", param.class, param.dest, param.value);
     }
 }
 
@@ -156,6 +177,14 @@ fn handle_scan(scan: &Scan) {
     println!("  Selection: {} to {}", scan.selection_start, scan.selection_end);
     println!("  Approximation: {} to {}", scan.approximation_low, scan.approximation_high);
     println!("  Data: {} bytes", scan.data.len());
+}
+
+fn handle_dri(restart: u16) {
+    println!("DRI: {}", restart);
+}
+
+fn handle_rst(restart: &Rst) {
+    println!("RST({}): Data: {} bytes", restart.nr, restart.data.len());
 }
 
 fn handle_comment(data: &[u8]) {

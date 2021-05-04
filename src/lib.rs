@@ -83,8 +83,11 @@ impl<R: Read> Reader<R> {
             0xE0..=0xEF => Ok(self.read_app_segment(marker - 0xE0)?),
             0xDB => Ok(Segment::Dqt(self.read_dqt()?)),
             0xC4 => Ok(Segment::Dht(self.read_dht()?)),
+            0xCC => Ok(Segment::Dac(self.read_dac()?)),
             0xC0..=0xC3 | 0xC5..=0xC7 | 0xC9..=0xCB | 0xCD..=0xCF => Ok(Segment::Frame(self.read_frame(marker)?)),
             0xDA => Ok(Segment::Scan(self.read_scan()?)),
+            0xDD => Ok(Segment::Dri(self.read_dri()?)),
+            0xD0..=0xD7 => Ok(Segment::Rst(self.read_rst(marker - 0xD0)?)),
             0xFE => Ok(Segment::Comment(self.read_segment()?)),
             marker => Ok(Segment::Unknown {
                 marker,
@@ -181,7 +184,7 @@ impl<R: Read> Reader<R> {
 
             tables.push(Dht {
                 class,
-                destination,
+                dest: destination,
                 code_lengths,
                 values,
             });
@@ -194,6 +197,27 @@ impl<R: Read> Reader<R> {
         }
 
         Ok(tables)
+    }
+
+    fn read_dac(&mut self) -> Result<Dac, JfifError> {
+        let length = self.read_length()?;
+
+        let mut params = vec![];
+
+        for _ in 0..(length / 2) {
+            let (class, dest) = self.read_u4_tuple()?;
+            let value = self.read_u8()?;
+
+            params.push(DacParam {
+                class,
+                dest,
+                value,
+            })
+        }
+
+        Ok(Dac {
+            params,
+        })
     }
 
     fn read_scan(&mut self) -> Result<Scan, JfifError> {
@@ -223,6 +247,19 @@ impl<R: Read> Reader<R> {
             self.skip(remaining)?;
         }
 
+        let data = self.read_scan_data()?;
+
+        Ok(Scan {
+            components,
+            selection_start,
+            selection_end,
+            approximation_low,
+            approximation_high,
+            data,
+        })
+    }
+
+    fn read_scan_data(&mut self) -> Result<Vec<u8>, JfifError> {
         let mut data = vec![];
 
         loop {
@@ -240,15 +277,28 @@ impl<R: Read> Reader<R> {
                 data.push(byte);
             }
         }
+        Ok(data)
+    }
 
-        Ok(Scan {
-            components,
-            selection_start,
-            selection_end,
-            approximation_low,
-            approximation_high,
+    fn read_rst(&mut self, nr: u8) -> Result<Rst, JfifError> {
+        let data = self.read_scan_data()?;
+        Ok(Rst {
+            nr,
             data,
         })
+    }
+
+    fn read_dri(&mut self) -> Result<u16, JfifError> {
+        let length = self.read_length()?;
+        let restart = self.read_u16()?;
+
+        let remaining = length - 2;
+
+        if remaining > 0 {
+            self.skip(remaining)?;
+        }
+
+        Ok(restart)
     }
 
     fn read_frame(&mut self, sof: u8) -> Result<Frame, JfifError> {
@@ -300,8 +350,11 @@ pub enum Segment {
     App0Jfif(App0Jfif),
     Dqt(Vec<Dqt>),
     Dht(Vec<Dht>),
+    Dac(Dac),
     Frame(Frame),
     Scan(Scan),
+    Dri(u16),
+    Rst(Rst),
     Comment(Vec<u8>),
     Unknown {
         marker: u8,
@@ -329,9 +382,19 @@ pub struct Dqt {
 
 pub struct Dht {
     pub class: u8,
-    pub destination: u8,
+    pub dest: u8,
     pub code_lengths: [u8; 16],
     pub values: Vec<u8>,
+}
+
+pub struct DacParam {
+    pub class: u8,
+    pub dest: u8,
+    pub value: u8,
+}
+
+pub struct Dac {
+    pub params: Vec<DacParam>,
 }
 
 pub struct ScanComponent {
@@ -346,6 +409,11 @@ pub struct Scan {
     pub selection_end: u8,
     pub approximation_low: u8,
     pub approximation_high: u8,
+    pub data: Vec<u8>,
+}
+
+pub struct Rst {
+    pub nr: u8,
     pub data: Vec<u8>,
 }
 
