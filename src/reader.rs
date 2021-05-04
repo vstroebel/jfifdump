@@ -1,4 +1,5 @@
 use std::io::{Read, Error as IoError};
+use std::fmt::Write;
 
 pub use crate::JfifError;
 
@@ -428,4 +429,38 @@ pub struct Frame {
     pub dimension_y: u16,
     pub dimension_x: u16,
     pub components: Vec<FrameComponent>,
+}
+
+impl Frame {
+    pub fn get_sof_name(&self) -> &'static str {
+        match self.sof {
+            0xC0 => "Baseline DCT",
+            0xC1 => "Extended sequential DCT",
+            0xC2 => "Progressive DCT",
+            0xC3 => "Lossless",
+            0xC5 => "Differential sequential DCT",
+            0xC6 => "Differential progressiveDCT",
+            0xC7 => "Differential lossless",
+            0xC9 => "Extended sequential DCT arithmetic",
+            0xCA => "Progressive DCT arithmetic",
+            0xCB => "Lossless arithmetic coding",
+            0xCD => "Differential sequential DCT arithmetic",
+            0xCE => "Differential progressive DCT arithmetic",
+            0xCF => "Differential lossless arithmetic",
+            _ => "Unknown"
+        }
+    }
+}
+
+pub fn get_marker_string(data: &[u8], max: usize) -> String {
+    let mut result = "".to_owned();
+    for &v in data.iter().take(max) {
+        if v.is_ascii_graphic() || v == 0x20 {
+            result.push(v as char);
+        } else {
+            write!(result, "\\x{:#04X}", v).unwrap();
+        }
+    }
+
+    result
 }
