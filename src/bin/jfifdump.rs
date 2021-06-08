@@ -2,6 +2,7 @@ use clap::{App, crate_name, crate_version, crate_description, Arg};
 use std::fs::File;
 use std::process::exit;
 use jfifdump::*;
+use std::io::BufReader;
 
 pub fn main() {
     let matches = create_clap_app().get_matches();
@@ -24,7 +25,7 @@ pub fn main() {
         "json" => {
             let mut handler = JsonFormat::new(verbose);
 
-            read(file, &mut handler).map(|_| {
+            read(BufReader::new(file), &mut handler).map(|_| {
                 println!("{}", handler.stringify());
             })
         }

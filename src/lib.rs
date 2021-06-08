@@ -10,11 +10,11 @@ pub use handler::Handler;
 pub use text::TextFormat;
 pub use crate::json::JsonFormat;
 
-use std::fs::File;
-use std::io::BufReader;
+use std::io::Read;
 
-pub fn read<H: Handler>(file: File, handler: &mut H) -> Result<(), JfifError> {
-    let mut reader = Reader::new(BufReader::new(file))?;
+/// Read JFIF input and call handler for all segments
+pub fn read<H: Handler, R: Read>(input: R, handler: &mut H) -> Result<(), JfifError> {
+    let mut reader = Reader::new(input)?;
 
     loop {
         match reader.next_segment()? {
