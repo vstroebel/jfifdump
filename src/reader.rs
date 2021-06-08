@@ -3,12 +3,14 @@ use std::fmt::Write;
 
 pub use crate::JfifError;
 
+/// A reader for JFIF files
 pub struct Reader<R: Read> {
     reader: R,
     current_marker: Option<u8>,
 }
 
 impl<R: Read> Reader<R> {
+    /// Create a new reader
     pub fn new(mut reader: R) -> Result<Self, JfifError> {
         let mut buf = [0u8; 2];
 
@@ -62,6 +64,7 @@ impl<R: Read> Reader<R> {
         Ok(length - 2)
     }
 
+    /// Read the next segment of the file
     pub fn next_segment(&mut self) -> Result<Segment, JfifError> {
         let marker = if let Some(marker) = self.current_marker.take() {
             marker
