@@ -43,7 +43,7 @@ OPTIONS:
 To use jfifdump as a library add the following to your Cargo.toml dependencies:
 
 ```toml
-jfifdump = "0.2"
+jfifdump = "0.3"
 ```
 
 ## Example: Print image dimensions
