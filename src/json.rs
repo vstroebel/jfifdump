@@ -27,8 +27,9 @@ impl JsonFormat {
 }
 
 impl Handler for JsonFormat {
-    fn handle_app(&mut self, nr: u8, data: &[u8]) {
+    fn handle_app(&mut self, position: usize, nr: u8, data: &[u8]) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", format!("App(0x{:X})", nr).into());
 
         value.insert("start", get_marker_string(data, 20).into());
@@ -40,8 +41,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_app0_jfif(&mut self, jfif: &App0Jfif) {
+    fn handle_app0_jfif(&mut self, position: usize, jfif: &App0Jfif) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "App(0x0):JFIF".into());
 
         let mut density = Object::new();
@@ -72,8 +74,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_dqt(&mut self, tables: &[Dqt]) {
+    fn handle_dqt(&mut self, position: usize, tables: &[Dqt]) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "DQT".into());
 
         let tables: Vec<JsonValue> = tables.iter().map(|table| {
@@ -93,8 +96,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_dht(&mut self, tables: &[Dht]) {
+    fn handle_dht(&mut self, position: usize, tables: &[Dht]) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "DHT".into());
 
         let tables: Vec<JsonValue> = tables.iter().map(|table| {
@@ -115,8 +119,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_dac(&mut self, dac: &Dac) {
+    fn handle_dac(&mut self, position: usize, dac: &Dac) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "DAC".into());
 
         let params: Vec<JsonValue> = dac.params.iter().map(|param| {
@@ -132,8 +137,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_frame(&mut self, frame: &Frame) {
+    fn handle_frame(&mut self, position: usize, frame: &Frame) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "SOF".into());
         value.insert("type", frame.get_sof_name().into());
 
@@ -157,8 +163,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_scan(&mut self, scan: &Scan) {
+    fn handle_scan(&mut self, position: usize, scan: &Scan) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "SOS".into());
 
         value.insert("components", scan.components.iter().map(|component| {
@@ -188,16 +195,18 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_dri(&mut self, restart: u16) {
+    fn handle_dri(&mut self, position: usize, restart: u16) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "DRI".into());
         value.insert("restart", restart.into());
 
         self.add(value);
     }
 
-    fn handle_rst(&mut self, restart: &Rst) {
+    fn handle_rst(&mut self, position: usize, restart: &Rst) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", format!("RST({})", restart.nr).into());
 
         value.insert("size", restart.data.len().into());
@@ -209,8 +218,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_comment(&mut self, data: &[u8]) {
+    fn handle_comment(&mut self, position: usize, data: &[u8]) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", "COM".into());
 
         if let Ok(comment) = std::str::from_utf8(data) {
@@ -222,8 +232,9 @@ impl Handler for JsonFormat {
         self.add(value);
     }
 
-    fn handle_unknown(&mut self, marker: u8, data: &[u8]) {
+    fn handle_unknown(&mut self, position: usize, marker: u8, data: &[u8]) {
         let mut value = Object::new();
+        value.insert("position", position.into());
         value.insert("marker", format!("Marker(0x{:X})", marker).into());
 
         value.insert("size", data.len().into());

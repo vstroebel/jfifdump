@@ -21,7 +21,10 @@ fn print_ascii_value(v: u8) {
 }
 
 impl Handler for TextFormat {
-    fn handle_app(&mut self, nr: u8, data: &[u8]) {
+    fn handle_app(&mut self, position: usize, nr: u8, data: &[u8]) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         print!("App(0x{:X}):", nr);
 
         for &v in data.iter().take(20) {
@@ -31,7 +34,10 @@ impl Handler for TextFormat {
         println!();
     }
 
-    fn handle_app0_jfif(&mut self, jfif: &App0Jfif) {
+    fn handle_app0_jfif(&mut self, position: usize, jfif: &App0Jfif) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("App(0x0): JFIF");
 
         println!("  Version: {}.{:02}", jfif.major, jfif.minor);
@@ -47,7 +53,10 @@ impl Handler for TextFormat {
         println!("  Thumbnail: {}x{}", jfif.x_thumbnail, jfif.y_thumbnail);
     }
 
-    fn handle_dqt(&mut self, tables: &[Dqt]) {
+    fn handle_dqt(&mut self, position: usize, tables: &[Dqt]) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("DQT:");
 
         for table in tables {
@@ -65,12 +74,15 @@ impl Handler for TextFormat {
                     }
                     print!("{}, ", v)
                 }
-                println!();
             }
+            println!();
         }
     }
 
-    fn handle_dht(&mut self, tables: &[Dht]) {
+    fn handle_dht(&mut self, position: usize, tables: &[Dht]) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("DHT:");
 
         for table in tables {
@@ -88,7 +100,10 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_dac(&mut self, dac: &Dac) {
+    fn handle_dac(&mut self, position: usize, dac: &Dac) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("DAC:");
 
         for param in &dac.params {
@@ -96,7 +111,10 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_frame(&mut self, frame: &Frame) {
+    fn handle_frame(&mut self, position: usize, frame: &Frame) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("Frame: {}", frame.get_sof_name());
         println!("  Precision: {}", frame.precision);
         println!("  Dimension: {}x{}", frame.dimension_x, frame.dimension_y);
@@ -110,7 +128,10 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_scan(&mut self, scan: &Scan) {
+    fn handle_scan(&mut self, position: usize, scan: &Scan) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("Scan: ");
 
         for component in &scan.components {
@@ -122,15 +143,24 @@ impl Handler for TextFormat {
         println!("  Data: {} bytes", scan.data.len());
     }
 
-    fn handle_dri(&mut self, restart: u16) {
+    fn handle_dri(&mut self, position: usize, restart: u16) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("DRI: {}", restart);
     }
 
-    fn handle_rst(&mut self, restart: &Rst) {
+    fn handle_rst(&mut self, position: usize, restart: &Rst) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("RST({}): Data: {} bytes", restart.nr, restart.data.len());
     }
 
-    fn handle_comment(&mut self, data: &[u8]) {
+    fn handle_comment(&mut self, position: usize, data: &[u8]) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         if let Ok(comment) = std::str::from_utf8(data) {
             println!("Comment: {}", comment);
         } else {
@@ -138,7 +168,10 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_unknown(&mut self, marker: u8, data: &[u8]) {
+    fn handle_unknown(&mut self, position: usize, marker: u8, data: &[u8]) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
         println!("Unknown(0x{:X}):{}", marker, data.len());
     }
 }

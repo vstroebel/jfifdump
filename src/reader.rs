@@ -1,5 +1,5 @@
-use std::io::{Read, Error as IoError};
 use std::fmt::Write;
+use std::io::{Error as IoError, Read};
 
 pub use crate::JfifError;
 
@@ -7,6 +7,7 @@ pub use crate::JfifError;
 pub struct Reader<R: Read> {
     reader: R,
     current_marker: Option<u8>,
+    position: usize,
 }
 
 impl<R: Read> Reader<R> {
@@ -21,12 +22,18 @@ impl<R: Read> Reader<R> {
         Ok(Self {
             reader,
             current_marker: None,
+            position: 2,
         })
+    }
+
+    fn read_exact(&mut self, buf: &mut [u8]) -> Result<(), IoError> {
+        self.position += buf.len();
+        self.reader.read_exact(buf)
     }
 
     fn read_u8(&mut self) -> Result<u8, IoError> {
         let mut buf = [0u8];
-        self.reader.read_exact(&mut buf)?;
+        self.read_exact(&mut buf)?;
         Ok(buf[0])
     }
 
@@ -37,13 +44,13 @@ impl<R: Read> Reader<R> {
 
     fn read_u16(&mut self) -> Result<u16, IoError> {
         let mut buf = [0u8; 2];
-        self.reader.read_exact(&mut buf)?;
+        self.read_exact(&mut buf)?;
         Ok(u16::from_be_bytes(buf))
     }
 
     fn read_to_vec(&mut self, length: usize) -> Result<Vec<u8>, IoError> {
         let mut result = vec![0u8; length];
-        self.reader.read_exact(&mut result)?;
+        self.read_exact(&mut result)?;
         Ok(result)
     }
 
@@ -79,23 +86,28 @@ impl<R: Read> Reader<R> {
             byte
         };
 
+        let position = self.position;
+
         match marker {
             0x00 => Err(JfifError::InvalidMarker(0x00)),
-            0xD9 => Ok(Segment::Eoi),
+            0xD9 => Ok(SegmentKind::Eoi),
             0xE0..=0xEF => Ok(self.read_app_segment(marker - 0xE0)?),
-            0xDB => Ok(Segment::Dqt(self.read_dqt()?)),
-            0xC4 => Ok(Segment::Dht(self.read_dht()?)),
-            0xCC => Ok(Segment::Dac(self.read_dac()?)),
-            0xC0..=0xC3 | 0xC5..=0xC7 | 0xC9..=0xCB | 0xCD..=0xCF => Ok(Segment::Frame(self.read_frame(marker)?)),
-            0xDA => Ok(Segment::Scan(self.read_scan()?)),
-            0xDD => Ok(Segment::Dri(self.read_dri()?)),
-            0xD0..=0xD7 => Ok(Segment::Rst(self.read_rst(marker - 0xD0)?)),
-            0xFE => Ok(Segment::Comment(self.read_segment()?)),
-            marker => Ok(Segment::Unknown {
+            0xDB => Ok(SegmentKind::Dqt(self.read_dqt()?)),
+            0xC4 => Ok(SegmentKind::Dht(self.read_dht()?)),
+            0xCC => Ok(SegmentKind::Dac(self.read_dac()?)),
+            0xC0..=0xC3 | 0xC5..=0xC7 | 0xC9..=0xCB | 0xCD..=0xCF => Ok(SegmentKind::Frame(self.read_frame(marker)?)),
+            0xDA => Ok(SegmentKind::Scan(self.read_scan()?)),
+            0xDD => Ok(SegmentKind::Dri(self.read_dri()?)),
+            0xD0..=0xD7 => Ok(SegmentKind::Rst(self.read_rst(marker - 0xD0)?)),
+            0xFE => Ok(SegmentKind::Comment(self.read_segment()?)),
+            marker => Ok(SegmentKind::Unknown {
                 marker,
                 data: self.read_segment()?,
             }),
-        }
+        }.map(|kind| Segment {
+            kind,
+            position,
+        })
     }
 
     fn read_segment(&mut self) -> Result<Vec<u8>, JfifError> {
@@ -103,7 +115,7 @@ impl<R: Read> Reader<R> {
         Ok(self.read_to_vec(length)?)
     }
 
-    fn read_app_segment(&mut self, nr: u8) -> Result<Segment, JfifError> {
+    fn read_app_segment(&mut self, nr: u8) -> Result<SegmentKind, JfifError> {
         let data = self.read_segment()?;
 
         if nr == 0 && data.len() >= 14 && data.starts_with(b"JFIF\0") {
@@ -123,7 +135,7 @@ impl<R: Read> Reader<R> {
                 None
             };
 
-            return Ok(Segment::App0Jfif(App0Jfif {
+            return Ok(SegmentKind::App0Jfif(App0Jfif {
                 major,
                 minor,
                 unit,
@@ -136,7 +148,7 @@ impl<R: Read> Reader<R> {
         }
 
 
-        Ok(Segment::App {
+        Ok(SegmentKind::App {
             nr,
             data,
         })
@@ -153,7 +165,7 @@ impl<R: Read> Reader<R> {
             let (precision, dest) = self.read_u4_tuple()?;
 
             let mut values = [0u8; 64];
-            self.reader.read_exact(&mut values)?;
+            self.read_exact(&mut values)?;
 
             tables.push(Dqt {
                 precision,
@@ -178,7 +190,7 @@ impl<R: Read> Reader<R> {
         while length > 17 {
             let (class, destination) = self.read_u4_tuple()?;
             let mut code_lengths = [0u8; 16];
-            self.reader.read_exact(&mut code_lengths)?;
+            self.read_exact(&mut code_lengths)?;
 
             let num_codes = code_lengths.iter().map(|v| *v as usize).sum();
 
@@ -343,7 +355,7 @@ impl<R: Read> Reader<R> {
     }
 }
 
-pub enum Segment {
+pub enum SegmentKind {
     Eoi,
     App {
         nr: u8,
@@ -362,6 +374,11 @@ pub enum Segment {
         marker: u8,
         data: Vec<u8>,
     },
+}
+
+pub struct Segment {
+    pub kind: SegmentKind,
+    pub position: usize,
 }
 
 #[derive(Debug)]

@@ -33,38 +33,41 @@
 //! }
 //! ```
 
+use std::io::Read;
+
+pub use error::JfifError;
+pub use handler::Handler;
+pub use reader::{App0Jfif, Dac, Dht, Dqt, Frame, FrameComponent, Reader, Rst, Scan, ScanComponent, Segment};
+pub use text::TextFormat;
+
+pub use crate::json::JsonFormat;
+use crate::reader::SegmentKind;
+
 mod error;
 mod reader;
 mod handler;
 mod json;
 mod text;
 
-pub use error::JfifError;
-pub use reader::{Reader, Segment, App0Jfif, Frame, FrameComponent, Scan, ScanComponent, Dht, Dqt, Dac, Rst};
-pub use handler::Handler;
-pub use text::TextFormat;
-pub use crate::json::JsonFormat;
-
-use std::io::Read;
-
 /// Read JFIF input and call handler for all segments
 pub fn read<H: Handler, R: Read>(input: R, handler: &mut H) -> Result<(), JfifError> {
     let mut reader = Reader::new(input)?;
 
     loop {
-        match reader.next_segment()? {
-            Segment::Eoi => break,
-            Segment::App { nr, data } => handler.handle_app(nr, &data),
-            Segment::App0Jfif(jfif) => handler.handle_app0_jfif(&jfif),
-            Segment::Dqt(tables) => handler.handle_dqt(&tables),
-            Segment::Dht(tables) => handler.handle_dht(&tables),
-            Segment::Dac(dac) => handler.handle_dac(&dac),
-            Segment::Frame(frame) => handler.handle_frame(&frame),
-            Segment::Scan(scan) => handler.handle_scan(&scan),
-            Segment::Dri(restart) => handler.handle_dri(restart),
-            Segment::Rst(rst) => handler.handle_rst(&rst),
-            Segment::Comment(data) => handler.handle_comment(&data),
-            Segment::Unknown { marker, data } => handler.handle_unknown(marker, &data),
+        let segment = reader.next_segment()?;
+        match segment.kind {
+            SegmentKind::Eoi => break,
+            SegmentKind::App { nr, data } => handler.handle_app(segment.position, nr, &data),
+            SegmentKind::App0Jfif(jfif) => handler.handle_app0_jfif(segment.position, &jfif),
+            SegmentKind::Dqt(tables) => handler.handle_dqt(segment.position, &tables),
+            SegmentKind::Dht(tables) => handler.handle_dht(segment.position, &tables),
+            SegmentKind::Dac(dac) => handler.handle_dac(segment.position, &dac),
+            SegmentKind::Frame(frame) => handler.handle_frame(segment.position, &frame),
+            SegmentKind::Scan(scan) => handler.handle_scan(segment.position, &scan),
+            SegmentKind::Dri(restart) => handler.handle_dri(segment.position, restart),
+            SegmentKind::Rst(rst) => handler.handle_rst(segment.position, &rst),
+            SegmentKind::Comment(data) => handler.handle_comment(segment.position, &data),
+            SegmentKind::Unknown { marker, data } => handler.handle_unknown(segment.position, marker, &data),
         };
     }
 
