@@ -8,7 +8,7 @@
 //! # use jfifdump::JfifError;
 //! # fn main() -> Result<(), JfifError> {
 //!
-//! use jfifdump::{Reader, Segment};
+//! use jfifdump::{Reader, SegmentKind};
 //! use std::fs::File;
 //! use std::io::BufReader;
 //!
@@ -17,9 +17,9 @@
 //! let mut reader = Reader::new(BufReader::new(file))?;
 //!
 //! loop {
-//!     match reader.next_segment()? {
-//!         Segment::Eoi => break,
-//!         Segment::Frame(frame) => {
+//!     match reader.next_segment()?.kind {
+//!         SegmentKind::Eoi => break,
+//!         SegmentKind::Frame(frame) => {
 //!             println!("{}x{}", frame.dimension_x, frame.dimension_y);
 //!             break;
 //!         }
@@ -37,11 +37,10 @@ use std::io::Read;
 
 pub use error::JfifError;
 pub use handler::Handler;
-pub use reader::{App0Jfif, Dac, Dht, Dqt, Frame, FrameComponent, Reader, Rst, Scan, ScanComponent, Segment};
+pub use reader::{App0Jfif, Dac, Dht, Dqt, Frame, FrameComponent, Reader, Rst, Scan, ScanComponent, Segment, SegmentKind};
 pub use text::TextFormat;
 
 pub use crate::json::JsonFormat;
-use crate::reader::SegmentKind;
 
 mod error;
 mod reader;

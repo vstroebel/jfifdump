@@ -1,0 +1,20 @@
+[package]
+name = "jfifdump-cli"
+version = "0.3.0"
+description = "Read and dump structure of a jpeg file"
+authors = ["Volker Ströbel <volkerstroebel@mysurdity.de>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+categories = ["multimedia::images"]
+keywords = ["jpg", "jpeg", "image"]
+readme = "README.md"
+repository = "https://github.com/vstroebel/jfifdump.git"
+
+[[bin]]
+name = "jfifdump"
+path = "src/main.rs"
+doc = false
+
+[dependencies]
+clap = { version = "3.1", features = ["cargo"] }
+jfifdump = { path = "../jfifdump", version = "0.3.0" }

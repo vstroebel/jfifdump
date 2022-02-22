@@ -11,7 +11,7 @@ This crate can be used as a library or as a command line utility.
 ## Installation
 
 ```
-$ cargo install jfifdump
+$ cargo install jfifdump-cli
 ```
 
 ## Usage
@@ -49,7 +49,7 @@ jfifdump = "0.3"
 ## Example: Print image dimensions
 
 ```rust
-use jfifdump::{Reader, Segment, JfifError};
+use jfifdump::{Reader, SegmentKind, JfifError};
 use std::fs::File;
 use std::io::BufReader;
 
@@ -59,9 +59,9 @@ fn main() -> Result<(), JfifError> {
     let mut reader = Reader::new(BufReader::new(file))?;
 
     loop {
-        match reader.next_segment()? {
-            Segment::Eoi => break,
-            Segment::Frame(frame) => {
+        match reader.next_segment()?.kind {
+            SegmentKind::Eoi => break,
+            SegmentKind::Frame(frame) => {
                 println!("{}x{}", frame.dimension_x, frame.dimension_y);
                 break;
             }
