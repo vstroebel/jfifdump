@@ -273,18 +273,28 @@ impl<R: Read> Reader<R> {
         })
     }
 
+    #[allow(clippy::same_item_push)]
     fn read_scan_data(&mut self) -> Result<Vec<u8>, JfifError> {
         let mut data = vec![];
 
         loop {
             let byte = self.read_u8()?;
             if byte == 0xFF {
-                let byte = self.read_u8()?;
+                let mut byte = self.read_u8()?;
+                let mut ff_count = 1;
+                // Multiple 0xFF are not standard compliant but supported by libjepeg
+                while byte == 0xFF {
+                    ff_count += 1;
+                    byte = self.read_u8()?;
+                }
+
                 if byte != 0x00 {
                     self.current_marker = Some(byte);
                     break;
                 } else {
-                    data.push(0xFF);
+                    for _ in [0..ff_count] {
+                        data.push(0xFF);
+                    }
                     data.push(byte);
                 }
             } else {
