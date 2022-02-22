@@ -23,20 +23,19 @@ $ jfifdump image.jpeg
 ## Command-line options
 
 ```
+Read and dump structure of a jpeg file
+
 USAGE:
-    jfifdump [FLAGS] [OPTIONS] <INPUT>
-
-FLAGS:
-    -v, --verbose    Make output more verbose
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -f, --format <FORMAT>    Output format [default: text]  [possible values: text, json]
+    jfifdump [OPTIONS] <INPUT>
 
 ARGS:
     <INPUT>    Jpeg file to use
 
+OPTIONS:
+    -f, --format <FORMAT>    Output format [default: text] [possible values: text, json]
+    -h, --help               Print help information
+    -v, --verbose            Make output more verbose
+    -V, --version            Print version information
 ```
 
 ## Using jfifdump as a library

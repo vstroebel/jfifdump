@@ -1,8 +1,10 @@
-use clap::{App, crate_name, crate_version, crate_description, Arg};
 use std::fs::File;
-use std::process::exit;
-use jfifdump::*;
 use std::io::BufReader;
+use std::process::exit;
+
+use clap::{Arg, Command, crate_description, crate_name, crate_version};
+
+use jfifdump::*;
 
 pub fn main() {
     let matches = create_clap_app().get_matches();
@@ -41,22 +43,22 @@ pub fn main() {
     }
 }
 
-fn create_clap_app() -> App<'static, 'static> {
-    App::new(crate_name!())
+fn create_clap_app() -> Command<'static> {
+    Command::new(crate_name!())
         .version(crate_version!())
         .about(crate_description!())
-        .arg(Arg::with_name("FORMAT")
-            .short("f")
+        .arg(Arg::new("FORMAT")
+            .short('f')
             .long("format")
             .possible_values(&["text", "json"])
             .default_value("text")
             .help("Output format"))
-        .arg(Arg::with_name("VERBOSE")
-            .short("v")
+        .arg(Arg::new("VERBOSE")
+            .short('v')
             .long("verbose")
-            .empty_values(true)
             .help("Make output more verbose"))
-        .arg(Arg::with_name("INPUT")
+        .arg(Arg::new("INPUT")
             .help("Jpeg file to use")
+            .allow_invalid_utf8(true)
             .required(true))
 }
