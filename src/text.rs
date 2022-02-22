@@ -172,6 +172,6 @@ impl Handler for TextFormat {
         if self.verbose {
             print!("0x{:X}: ", position);
         }
-        println!("Unknown(0x{:X}):{}", marker, data.len());
+        println!("Unknown(0x{:X}): Length {}", marker, data.len());
     }
 }

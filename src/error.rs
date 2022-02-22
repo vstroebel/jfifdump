@@ -20,7 +20,7 @@ impl Display for JfifError {
         use JfifError::*;
         match self {
             JfifMarkerNotFound => write!(f, "Not a JFIF file"),
-            InvalidMarker(value) => write!(f, "Invalid marker: {:X}", value),
+            InvalidMarker(value) => write!(f, "Invalid marker: 0x{:X}", value),
             InvalidMarkerLength(length) => write!(f, "Invalid length for marker: {}", length),
             IoError(err) => err.fmt(f),
         }
