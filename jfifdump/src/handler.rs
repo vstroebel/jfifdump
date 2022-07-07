@@ -1,4 +1,4 @@
-use crate::{App0Jfif, Dqt, Dht, Frame, Dac, Scan, Rst};
+use crate::{App0Jfif, Dac, Dht, Dqt, Frame, Rst, Scan};
 
 pub trait Handler {
     fn handle_app(&mut self, position: usize, nr: u8, data: &[u8]);

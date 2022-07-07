@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::process::exit;
 
-use clap::{Arg, Command, crate_description, crate_name, crate_version};
+use clap::{crate_description, crate_name, crate_version, Arg, Command};
 
 use jfifdump::*;
 
@@ -47,18 +47,24 @@ fn create_clap_app() -> Command<'static> {
     Command::new(crate_name!())
         .version(crate_version!())
         .about(crate_description!())
-        .arg(Arg::new("FORMAT")
-            .short('f')
-            .long("format")
-            .possible_values(&["text", "json"])
-            .default_value("text")
-            .help("Output format"))
-        .arg(Arg::new("VERBOSE")
-            .short('v')
-            .long("verbose")
-            .help("Make output more verbose"))
-        .arg(Arg::new("INPUT")
-            .help("Jpeg file to use")
-            .allow_invalid_utf8(true)
-            .required(true))
+        .arg(
+            Arg::new("FORMAT")
+                .short('f')
+                .long("format")
+                .possible_values(&["text", "json"])
+                .default_value("text")
+                .help("Output format"),
+        )
+        .arg(
+            Arg::new("VERBOSE")
+                .short('v')
+                .long("verbose")
+                .help("Make output more verbose"),
+        )
+        .arg(
+            Arg::new("INPUT")
+                .help("Jpeg file to use")
+                .allow_invalid_utf8(true)
+                .required(true),
+        )
 }

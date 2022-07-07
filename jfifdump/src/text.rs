@@ -1,4 +1,4 @@
-use crate::{Handler, Rst, Scan, Frame, Dac, Dht, Dqt, App0Jfif};
+use crate::{App0Jfif, Dac, Dht, Dqt, Frame, Handler, Rst, Scan};
 
 pub struct TextFormat {
     verbose: bool,
@@ -6,9 +6,7 @@ pub struct TextFormat {
 
 impl TextFormat {
     pub fn new(verbose: bool) -> TextFormat {
-        TextFormat {
-            verbose
-        }
+        TextFormat { verbose }
     }
 }
 
@@ -107,7 +105,10 @@ impl Handler for TextFormat {
         println!("DAC:");
 
         for param in &dac.params {
-            println!("  Class: {}   Dest: {}    Value: {}", param.class, param.dest, param.value);
+            println!(
+                "  Class: {}   Dest: {}    Value: {}",
+                param.class, param.dest, param.value
+            );
         }
     }
 
@@ -120,11 +121,13 @@ impl Handler for TextFormat {
         println!("  Dimension: {}x{}", frame.dimension_x, frame.dimension_y);
 
         for component in &frame.components {
-            println!("  Component({}): Sampling {}x{} Quantization: {}",
-                     component.id,
-                     component.horizontal_sampling_factor,
-                     component.vertical_sampling_factor,
-                     component.quantization_table);
+            println!(
+                "  Component({}): Sampling {}x{} Quantization: {}",
+                component.id,
+                component.horizontal_sampling_factor,
+                component.vertical_sampling_factor,
+                component.quantization_table
+            );
         }
     }
 
@@ -135,11 +138,20 @@ impl Handler for TextFormat {
         println!("Scan: ");
 
         for component in &scan.components {
-            println!("  Component: {} DC:{} AC:{}", component.id, component.dc_table, component.dc_table);
+            println!(
+                "  Component: {} DC:{} AC:{}",
+                component.id, component.dc_table, component.dc_table
+            );
         }
 
-        println!("  Selection: {} to {}", scan.selection_start, scan.selection_end);
-        println!("  Approximation: {} to {}", scan.approximation_low, scan.approximation_high);
+        println!(
+            "  Selection: {} to {}",
+            scan.selection_start, scan.selection_end
+        );
+        println!(
+            "  Approximation: {} to {}",
+            scan.approximation_low, scan.approximation_high
+        );
         println!("  Data: {} bytes", scan.data.len());
     }
 

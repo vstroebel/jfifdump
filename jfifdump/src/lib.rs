@@ -37,15 +37,18 @@ use std::io::Read;
 
 pub use error::JfifError;
 pub use handler::Handler;
-pub use reader::{App0Jfif, Dac, Dht, Dqt, Frame, FrameComponent, Reader, Rst, Scan, ScanComponent, Segment, SegmentKind};
+pub use reader::{
+    App0Jfif, Dac, Dht, Dqt, Frame, FrameComponent, Reader, Rst, Scan, ScanComponent, Segment,
+    SegmentKind,
+};
 pub use text::TextFormat;
 
 pub use crate::json::JsonFormat;
 
 mod error;
-mod reader;
 mod handler;
 mod json;
+mod reader;
 mod text;
 
 /// Read JFIF input and call handler for all segments
@@ -66,7 +69,9 @@ pub fn read<H: Handler, R: Read>(input: R, handler: &mut H) -> Result<(), JfifEr
             SegmentKind::Dri(restart) => handler.handle_dri(segment.position, restart),
             SegmentKind::Rst(rst) => handler.handle_rst(segment.position, &rst),
             SegmentKind::Comment(data) => handler.handle_comment(segment.position, &data),
-            SegmentKind::Unknown { marker, data } => handler.handle_unknown(segment.position, marker, &data),
+            SegmentKind::Unknown { marker, data } => {
+                handler.handle_unknown(segment.position, marker, &data)
+            }
         };
     }
 

@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use std::error::Error;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum JfifError {
@@ -31,7 +31,7 @@ impl Error for JfifError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
             JfifError::IoError(err) => Some(err),
-            _ => None
+            _ => None,
         }
     }
 }

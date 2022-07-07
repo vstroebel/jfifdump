@@ -95,7 +95,9 @@ impl<R: Read> Reader<R> {
             0xDB => Ok(SegmentKind::Dqt(self.read_dqt()?)),
             0xC4 => Ok(SegmentKind::Dht(self.read_dht()?)),
             0xCC => Ok(SegmentKind::Dac(self.read_dac()?)),
-            0xC0..=0xC3 | 0xC5..=0xC7 | 0xC9..=0xCB | 0xCD..=0xCF => Ok(SegmentKind::Frame(self.read_frame(marker)?)),
+            0xC0..=0xC3 | 0xC5..=0xC7 | 0xC9..=0xCB | 0xCD..=0xCF => {
+                Ok(SegmentKind::Frame(self.read_frame(marker)?))
+            }
             0xDA => Ok(SegmentKind::Scan(self.read_scan()?)),
             0xDD => Ok(SegmentKind::Dri(self.read_dri()?)),
             0xD0..=0xD7 => Ok(SegmentKind::Rst(self.read_rst(marker - 0xD0)?)),
@@ -104,10 +106,8 @@ impl<R: Read> Reader<R> {
                 marker,
                 data: self.read_segment()?,
             }),
-        }.map(|kind| Segment {
-            kind,
-            position,
-        })
+        }
+        .map(|kind| Segment { kind, position })
     }
 
     fn read_segment(&mut self) -> Result<Vec<u8>, JfifError> {
@@ -147,11 +147,7 @@ impl<R: Read> Reader<R> {
             }));
         }
 
-
-        Ok(SegmentKind::App {
-            nr,
-            data,
-        })
+        Ok(SegmentKind::App { nr, data })
     }
 
     fn read_dqt(&mut self) -> Result<Vec<Dqt>, JfifError> {
@@ -222,16 +218,10 @@ impl<R: Read> Reader<R> {
             let (class, dest) = self.read_u4_tuple()?;
             let value = self.read_u8()?;
 
-            params.push(DacParam {
-                class,
-                dest,
-                value,
-            })
+            params.push(DacParam { class, dest, value })
         }
 
-        Ok(Dac {
-            params,
-        })
+        Ok(Dac { params })
     }
 
     fn read_scan(&mut self) -> Result<Scan, JfifError> {
@@ -249,7 +239,7 @@ impl<R: Read> Reader<R> {
                 dc_table,
                 ac_table,
             })
-        };
+        }
 
         let selection_start = self.read_u8()?;
         let selection_end = self.read_u8()?;
@@ -306,10 +296,7 @@ impl<R: Read> Reader<R> {
 
     fn read_rst(&mut self, nr: u8) -> Result<Rst, JfifError> {
         let data = self.read_scan_data()?;
-        Ok(Rst {
-            nr,
-            data,
-        })
+        Ok(Rst { nr, data })
     }
 
     fn read_dri(&mut self) -> Result<u16, JfifError> {
@@ -367,10 +354,7 @@ impl<R: Read> Reader<R> {
 
 pub enum SegmentKind {
     Eoi,
-    App {
-        nr: u8,
-        data: Vec<u8>,
-    },
+    App { nr: u8, data: Vec<u8> },
     App0Jfif(App0Jfif),
     Dqt(Vec<Dqt>),
     Dht(Vec<Dht>),
@@ -380,10 +364,7 @@ pub enum SegmentKind {
     Dri(u16),
     Rst(Rst),
     Comment(Vec<u8>),
-    Unknown {
-        marker: u8,
-        data: Vec<u8>,
-    },
+    Unknown { marker: u8, data: Vec<u8> },
 }
 
 pub struct Segment {
@@ -477,7 +458,7 @@ impl Frame {
             0xCD => "Differential sequential DCT arithmetic",
             0xCE => "Differential progressive DCT arithmetic",
             0xCF => "Differential lossless arithmetic",
-            _ => "Unknown"
+            _ => "Unknown",
         }
     }
 }

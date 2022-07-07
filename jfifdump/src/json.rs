@@ -1,8 +1,8 @@
-use crate::{Handler, Rst, Scan, Frame, Dac, Dht, Dqt, App0Jfif};
+use crate::{App0Jfif, Dac, Dht, Dqt, Frame, Handler, Rst, Scan};
 
+use crate::reader::get_marker_string;
 use json::object::Object;
 use json::{object, JsonValue};
-use crate::reader::get_marker_string;
 
 pub struct JsonFormat {
     markers: Vec<JsonValue>,
@@ -79,17 +79,20 @@ impl Handler for JsonFormat {
         value.insert("position", position.into());
         value.insert("marker", "DQT".into());
 
-        let tables: Vec<JsonValue> = tables.iter().map(|table| {
-            let mut t_value = Object::new();
-            t_value.insert("dest", table.dest.into());
-            t_value.insert("precision", table.precision.into());
+        let tables: Vec<JsonValue> = tables
+            .iter()
+            .map(|table| {
+                let mut t_value = Object::new();
+                t_value.insert("dest", table.dest.into());
+                t_value.insert("precision", table.precision.into());
 
-            if self.verbose {
-                t_value.insert("data", table.values.to_vec().into());
-            }
+                if self.verbose {
+                    t_value.insert("data", table.values.to_vec().into());
+                }
 
-            JsonValue::Object(t_value)
-        }).collect();
+                JsonValue::Object(t_value)
+            })
+            .collect();
 
         value.insert("tables", tables.into());
 
@@ -101,18 +104,21 @@ impl Handler for JsonFormat {
         value.insert("position", position.into());
         value.insert("marker", "DHT".into());
 
-        let tables: Vec<JsonValue> = tables.iter().map(|table| {
-            let mut t_value = Object::new();
-            t_value.insert("class", table.class.into());
-            t_value.insert("dest", table.dest.into());
+        let tables: Vec<JsonValue> = tables
+            .iter()
+            .map(|table| {
+                let mut t_value = Object::new();
+                t_value.insert("class", table.class.into());
+                t_value.insert("dest", table.dest.into());
 
-            if self.verbose {
-                t_value.insert("code_lengths", table.code_lengths.to_vec().into());
-                t_value.insert("values", table.values.to_vec().into());
-            }
+                if self.verbose {
+                    t_value.insert("code_lengths", table.code_lengths.to_vec().into());
+                    t_value.insert("values", table.values.to_vec().into());
+                }
 
-            JsonValue::Object(t_value)
-        }).collect();
+                JsonValue::Object(t_value)
+            })
+            .collect();
 
         value.insert("tables", tables.into());
 
@@ -124,13 +130,17 @@ impl Handler for JsonFormat {
         value.insert("position", position.into());
         value.insert("marker", "DAC".into());
 
-        let params: Vec<JsonValue> = dac.params.iter().map(|param| {
-            object! {
-                class: param.class,
-                dest: param.dest,
-                param: param.value,
-            }
-        }).collect();
+        let params: Vec<JsonValue> = dac
+            .params
+            .iter()
+            .map(|param| {
+                object! {
+                    class: param.class,
+                    dest: param.dest,
+                    param: param.value,
+                }
+            })
+            .collect();
 
         value.insert("params", params.into());
 
@@ -144,21 +154,32 @@ impl Handler for JsonFormat {
         value.insert("type", frame.get_sof_name().into());
 
         value.insert("precision", frame.precision.into());
-        value.insert("dimension", object! {
-           width:  frame.dimension_x,
-            height: frame.dimension_y,
-        });
-
-        value.insert("components", frame.components.iter().map(|component| {
+        value.insert(
+            "dimension",
             object! {
-                id: component.id,
-                sampling_facor: object! {
-                    horizontal: component.horizontal_sampling_factor,
-                    vertical: component.vertical_sampling_factor,
-                },
-                quantization_table: component.quantization_table,
-            }
-        }).collect::<Vec<_>>().into());
+               width:  frame.dimension_x,
+                height: frame.dimension_y,
+            },
+        );
+
+        value.insert(
+            "components",
+            frame
+                .components
+                .iter()
+                .map(|component| {
+                    object! {
+                        id: component.id,
+                        sampling_facor: object! {
+                            horizontal: component.horizontal_sampling_factor,
+                            vertical: component.vertical_sampling_factor,
+                        },
+                        quantization_table: component.quantization_table,
+                    }
+                })
+                .collect::<Vec<_>>()
+                .into(),
+        );
 
         self.add(value);
     }
@@ -168,23 +189,36 @@ impl Handler for JsonFormat {
         value.insert("position", position.into());
         value.insert("marker", "SOS".into());
 
-        value.insert("components", scan.components.iter().map(|component| {
+        value.insert(
+            "components",
+            scan.components
+                .iter()
+                .map(|component| {
+                    object! {
+                        id: component.id,
+                        dc_table: component.dc_table,
+                        ac_table: component.ac_table,
+                    }
+                })
+                .collect::<Vec<_>>()
+                .into(),
+        );
+
+        value.insert(
+            "selection",
             object! {
-                id: component.id,
-                dc_table: component.dc_table,
-                ac_table: component.ac_table,
-            }
-        }).collect::<Vec<_>>().into());
+                start: scan.selection_start,
+                end: scan.selection_end,
+            },
+        );
 
-        value.insert("selection", object! {
-            start: scan.selection_start,
-            end: scan.selection_end,
-        });
-
-        value.insert("approximation", object! {
-            low: scan.approximation_low,
-            high: scan.approximation_high,
-        });
+        value.insert(
+            "approximation",
+            object! {
+                low: scan.approximation_low,
+                high: scan.approximation_high,
+            },
+        );
 
         value.insert("size", scan.data.len().into());
 
