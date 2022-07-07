@@ -16,5 +16,5 @@ path = "src/main.rs"
 doc = false
 
 [dependencies]
-clap = { version = "3.1", features = ["cargo"] }
+clap = { version = "3.2", features = ["cargo"] }
 jfifdump = { path = "../jfifdump", version = "0.3.0" }
