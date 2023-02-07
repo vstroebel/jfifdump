@@ -272,7 +272,7 @@ impl<R: Read> Reader<R> {
             if byte == 0xFF {
                 let mut byte = self.read_u8()?;
                 let mut ff_count = 1;
-                // Multiple 0xFF are not standard compliant but supported by libjepeg
+                // Multiple 0xFF are not standard compliant but supported by libjpeg
                 while byte == 0xFF {
                     ff_count += 1;
                     byte = self.read_u8()?;
