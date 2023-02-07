@@ -2,20 +2,21 @@
 
 use std::fs::File;
 use std::io::BufReader;
+use std::path::PathBuf;
 use std::process::exit;
 
-use clap::{crate_description, crate_name, crate_version, Arg, Command};
+use clap::{crate_description, crate_name, crate_version, Arg, Command, value_parser};
 
 use jfifdump::*;
 
 pub fn main() {
     let matches = create_clap_app().get_matches();
 
-    let path = matches.value_of_os("INPUT").expect("Required arg present");
+    let path = matches.get_one::<PathBuf>("INPUT").expect("Required arg present");
 
-    let format = matches.value_of("FORMAT").unwrap_or("TEXT");
+    let format = matches.get_one::<String>("FORMAT").map(|s|s.as_str()).unwrap_or("text");
 
-    let verbose = matches.is_present("VERBOSE");
+    let verbose = matches.contains_id("VERBOSE");
 
     let file = match File::open(path) {
         Ok(file) => file,
@@ -45,7 +46,7 @@ pub fn main() {
     }
 }
 
-fn create_clap_app() -> Command<'static> {
+fn create_clap_app() -> Command {
     Command::new(crate_name!())
         .version(crate_version!())
         .about(crate_description!())
@@ -53,7 +54,7 @@ fn create_clap_app() -> Command<'static> {
             Arg::new("FORMAT")
                 .short('f')
                 .long("format")
-                .possible_values(["text", "json"])
+                .value_parser(["text", "json"])
                 .default_value("text")
                 .help("Output format"),
         )
@@ -66,7 +67,7 @@ fn create_clap_app() -> Command<'static> {
         .arg(
             Arg::new("INPUT")
                 .help("Jpeg file to use")
-                .allow_invalid_utf8(true)
+                .value_parser(value_parser!(PathBuf))
                 .required(true),
         )
 }
