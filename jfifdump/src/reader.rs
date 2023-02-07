@@ -282,7 +282,7 @@ impl<R: Read> Reader<R> {
                     self.current_marker = Some(byte);
                     break;
                 } else {
-                    for _ in [0..ff_count] {
+                    for _ in 0..ff_count {
                         data.push(0xFF);
                     }
                     data.push(byte);
