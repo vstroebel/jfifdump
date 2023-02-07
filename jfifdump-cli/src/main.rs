@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 use std::fs::File;
 use std::io::BufReader;
 use std::process::exit;
@@ -51,7 +53,7 @@ fn create_clap_app() -> Command<'static> {
             Arg::new("FORMAT")
                 .short('f')
                 .long("format")
-                .possible_values(&["text", "json"])
+                .possible_values(["text", "json"])
                 .default_value("text")
                 .help("Output format"),
         )
