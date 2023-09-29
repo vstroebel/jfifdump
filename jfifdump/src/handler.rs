@@ -22,4 +22,8 @@ pub trait Handler {
     fn handle_comment(&mut self, position: usize, data: &[u8]);
 
     fn handle_unknown(&mut self, position: usize, marker: u8, data: &[u8]);
+
+    fn handle_eoi(&mut self, position: usize);
+
+    fn handle_soi(&mut self, position: usize);
 }

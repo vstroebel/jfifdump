@@ -278,4 +278,18 @@ impl Handler for JsonFormat {
         }
         self.add(value);
     }
+
+    fn handle_eoi(&mut self, position: usize) {
+        let mut value = Object::new();
+        value.insert("position", position.into());
+        value.insert("marker", "EOI".into());
+        self.add(value);
+    }
+
+    fn handle_soi(&mut self, position: usize) {
+        let mut value = Object::new();
+        value.insert("position", position.into());
+        value.insert("marker", "SOI".into());
+        self.add(value);
+    }
 }

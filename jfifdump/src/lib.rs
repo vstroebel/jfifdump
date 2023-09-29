@@ -35,7 +35,7 @@
 
 #![allow(clippy::uninlined_format_args)]
 
-use std::io::Read;
+use std::io::{ErrorKind, Read};
 
 pub use error::JfifError;
 pub use handler::Handler;
@@ -58,9 +58,21 @@ pub fn read<H: Handler, R: Read>(input: R, handler: &mut H) -> Result<(), JfifEr
     let mut reader = Reader::new(input)?;
 
     loop {
-        let segment = reader.next_segment()?;
+        let segment = match reader.next_segment() {
+            Ok(segment) => segment,
+            Err(JfifError::IoError(ioerror)) => {
+                return if ioerror.kind() == ErrorKind::UnexpectedEof {
+                    Ok(())
+                } else {
+                    Err(JfifError::IoError(ioerror))
+                }
+            }
+            Err(err) => return Err(err),
+        };
+
         match segment.kind {
-            SegmentKind::Eoi => break,
+            SegmentKind::Soi => handler.handle_soi(segment.position),
+            SegmentKind::Eoi => handler.handle_eoi(segment.position),
             SegmentKind::App { nr, data } => handler.handle_app(segment.position, nr, &data),
             SegmentKind::App0Jfif(jfif) => handler.handle_app0_jfif(segment.position, &jfif),
             SegmentKind::Dqt(tables) => handler.handle_dqt(segment.position, &tables),
@@ -76,6 +88,4 @@ pub fn read<H: Handler, R: Read>(input: R, handler: &mut H) -> Result<(), JfifEr
             }
         };
     }
-
-    Ok(())
 }

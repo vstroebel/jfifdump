@@ -186,4 +186,18 @@ impl Handler for TextFormat {
         }
         println!("Unknown(0x{:X}): Length {}", marker, data.len());
     }
+
+    fn handle_eoi(&mut self, position: usize) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
+        println!("EOI");
+    }
+
+    fn handle_soi(&mut self, position: usize) {
+        if self.verbose {
+            print!("0x{:X}: ", position);
+        }
+        println!("SOI");
+    }
 }

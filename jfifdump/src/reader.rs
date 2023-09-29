@@ -21,7 +21,7 @@ impl<R: Read> Reader<R> {
 
         Ok(Self {
             reader,
-            current_marker: None,
+            current_marker: Some(0xD8),
             position: 2,
         })
     }
@@ -90,6 +90,7 @@ impl<R: Read> Reader<R> {
 
         match marker {
             0x00 => Err(JfifError::InvalidMarker(0x00)),
+            0xD8 => Ok(SegmentKind::Soi),
             0xD9 => Ok(SegmentKind::Eoi),
             0xE0..=0xEF => Ok(self.read_app_segment(marker - 0xE0)?),
             0xDB => Ok(SegmentKind::Dqt(self.read_dqt()?)),
@@ -353,6 +354,7 @@ impl<R: Read> Reader<R> {
 }
 
 pub enum SegmentKind {
+    Soi,
     Eoi,
     App { nr: u8, data: Vec<u8> },
     App0Jfif(App0Jfif),
