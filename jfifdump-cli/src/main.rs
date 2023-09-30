@@ -26,17 +26,19 @@ pub fn main() {
         }
     };
 
+    let bufread = BufReader::new(file);
+
     let res = match format {
         "json" => {
             let mut handler = JsonFormat::new(verbose);
 
-            read(BufReader::new(file), &mut handler).map(|_| {
+            read(bufread, &mut handler).map(|_| {
                 println!("{}", handler.stringify());
             })
         }
         _ => {
             let mut handler = TextFormat::new(verbose);
-            read(file, &mut handler)
+            read(bufread, &mut handler)
         }
     };
 
