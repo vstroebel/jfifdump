@@ -1,8 +1,8 @@
 use crate::{App0Jfif, Dac, Dht, Dqt, Frame, Handler, Rst, Scan};
 
 use crate::reader::get_marker_string;
-use json::object::Object;
-use json::{object, JsonValue};
+use jzon::object::Object;
+use jzon::{object, JsonValue};
 
 pub struct JsonFormat {
     markers: Vec<JsonValue>,
@@ -22,7 +22,7 @@ impl JsonFormat {
     }
 
     pub fn stringify(&self) -> String {
-        json::stringify_pretty(JsonValue::Array(self.markers.clone()), 4)
+        jzon::stringify_pretty(JsonValue::Array(self.markers.clone()), 4)
     }
 }
 

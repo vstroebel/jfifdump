@@ -11,4 +11,4 @@ readme = "../README.md"
 repository = "https://github.com/vstroebel/jfifdump.git"
 
 [dependencies]
-json = "0.12"
+jzon = "0.12"
