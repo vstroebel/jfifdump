@@ -10,5 +10,9 @@ keywords = ["jpg", "jpeg", "image"]
 readme = "../README.md"
 repository = "https://github.com/vstroebel/jfifdump.git"
 
+[features]
+default = []
+json = ["jzon"]
+
 [dependencies]
-jzon = "0.12"
+jzon = { version = "0.12", optional = true }

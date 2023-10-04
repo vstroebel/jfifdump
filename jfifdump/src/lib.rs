@@ -45,10 +45,12 @@ pub use reader::{
 };
 pub use text::TextFormat;
 
+#[cfg(feature = "json")]
 pub use crate::json::JsonFormat;
 
 mod error;
 mod handler;
+#[cfg(feature = "json")]
 mod json;
 mod reader;
 mod text;

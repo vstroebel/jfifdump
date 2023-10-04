@@ -17,4 +17,4 @@ doc = false
 
 [dependencies]
 clap = { version = "4.3", features = ["cargo"] }
-jfifdump = { path = "../jfifdump", version = "0.4.0" }
+jfifdump = { path = "../jfifdump", version = "0.4.0", features = ["json"] }
