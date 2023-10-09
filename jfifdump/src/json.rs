@@ -1,8 +1,22 @@
 use crate::{App0Jfif, Dac, Dht, Dqt, Frame, Handler, Rst, Scan};
 
-use crate::reader::get_marker_string;
-use json::object::Object;
-use json::{object, JsonValue};
+use std::fmt::Write;
+use jzon::object::Object;
+use jzon::{object, JsonValue};
+
+pub fn get_marker_string(data: &[u8], max: usize) -> String {
+    let mut result = "".to_owned();
+    for &v in data.iter().take(max) {
+        if v.is_ascii_graphic() || v == 0x20 {
+            result.push(v as char);
+        } else {
+            write!(result, "\\x{:#04X}", v).unwrap();
+        }
+    }
+
+    result
+}
+
 
 pub struct JsonFormat {
     markers: Vec<JsonValue>,
@@ -22,7 +36,7 @@ impl JsonFormat {
     }
 
     pub fn stringify(&self) -> String {
-        json::stringify_pretty(JsonValue::Array(self.markers.clone()), 4)
+        jzon::stringify_pretty(JsonValue::Array(self.markers.clone()), 4)
     }
 }
 

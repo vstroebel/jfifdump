@@ -1,4 +1,3 @@
-use std::fmt::Write;
 use std::io::{Error as IoError, Read};
 
 pub use crate::JfifError;
@@ -463,17 +462,4 @@ impl Frame {
             _ => "Unknown",
         }
     }
-}
-
-pub fn get_marker_string(data: &[u8], max: usize) -> String {
-    let mut result = "".to_owned();
-    for &v in data.iter().take(max) {
-        if v.is_ascii_graphic() || v == 0x20 {
-            result.push(v as char);
-        } else {
-            write!(result, "\\x{:#04X}", v).unwrap();
-        }
-    }
-
-    result
 }
