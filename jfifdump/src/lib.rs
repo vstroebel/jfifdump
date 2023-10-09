@@ -73,20 +73,34 @@ pub fn read<H: Handler, R: Read>(input: R, handler: &mut H) -> Result<(), JfifEr
         };
 
         match segment.kind {
-            SegmentKind::Soi => handler.handle_soi(segment.position),
-            SegmentKind::Eoi => handler.handle_eoi(segment.position),
-            SegmentKind::App { nr, data } => handler.handle_app(segment.position, nr, &data),
-            SegmentKind::App0Jfif(jfif) => handler.handle_app0_jfif(segment.position, &jfif),
-            SegmentKind::Dqt(tables) => handler.handle_dqt(segment.position, &tables),
-            SegmentKind::Dht(tables) => handler.handle_dht(segment.position, &tables),
-            SegmentKind::Dac(dac) => handler.handle_dac(segment.position, &dac),
-            SegmentKind::Frame(frame) => handler.handle_frame(segment.position, &frame),
-            SegmentKind::Scan(scan) => handler.handle_scan(segment.position, &scan),
-            SegmentKind::Dri(restart) => handler.handle_dri(segment.position, restart),
-            SegmentKind::Rst(rst) => handler.handle_rst(segment.position, &rst),
-            SegmentKind::Comment(data) => handler.handle_comment(segment.position, &data),
+            SegmentKind::Soi => handler.handle_soi(segment.position, segment.length),
+            SegmentKind::Eoi => handler.handle_eoi(segment.position, segment.length),
+            SegmentKind::App { nr, data } => {
+                handler.handle_app(segment.position, segment.length, nr, &data)
+            }
+            SegmentKind::App0Jfif(jfif) => {
+                handler.handle_app0_jfif(segment.position, segment.length, &jfif)
+            }
+            SegmentKind::Dqt(tables) => {
+                handler.handle_dqt(segment.position, segment.length, &tables)
+            }
+            SegmentKind::Dht(tables) => {
+                handler.handle_dht(segment.position, segment.length, &tables)
+            }
+            SegmentKind::Dac(dac) => handler.handle_dac(segment.position, segment.length, &dac),
+            SegmentKind::Frame(frame) => {
+                handler.handle_frame(segment.position, segment.length, &frame)
+            }
+            SegmentKind::Scan(scan) => handler.handle_scan(segment.position, segment.length, &scan),
+            SegmentKind::Dri(restart) => {
+                handler.handle_dri(segment.position, segment.length, restart)
+            }
+            SegmentKind::Rst(rst) => handler.handle_rst(segment.position, segment.length, &rst),
+            SegmentKind::Comment(data) => {
+                handler.handle_comment(segment.position, segment.length, &data)
+            }
             SegmentKind::Unknown { marker, data } => {
-                handler.handle_unknown(segment.position, marker, &data)
+                handler.handle_unknown(segment.position, segment.length, marker, &data)
             }
         };
     }

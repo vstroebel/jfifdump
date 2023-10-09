@@ -85,7 +85,7 @@ impl<R: Read> Reader<R> {
             byte
         };
 
-        let position = self.position;
+        let position = self.position - 2;
 
         match marker {
             0x00 => Err(JfifError::InvalidMarker(0x00)),
@@ -107,7 +107,11 @@ impl<R: Read> Reader<R> {
                 data: self.read_segment()?,
             }),
         }
-        .map(|kind| Segment { kind, position })
+        .map(|kind| Segment {
+            kind,
+            position,
+            length: self.position - position,
+        })
     }
 
     fn read_segment(&mut self) -> Result<Vec<u8>, JfifError> {
@@ -370,7 +374,12 @@ pub enum SegmentKind {
 
 pub struct Segment {
     pub kind: SegmentKind,
+
+    // Position of the segment including trailing marker
     pub position: usize,
+
+    // Length of the segment including trailing marker and without padding bytes
+    pub length: usize,
 }
 
 #[derive(Debug)]

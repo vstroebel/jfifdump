@@ -19,9 +19,9 @@ fn print_ascii_value(v: u8) {
 }
 
 impl Handler for TextFormat {
-    fn handle_app(&mut self, position: usize, nr: u8, data: &[u8]) {
+    fn handle_app(&mut self, position: usize, length: usize, nr: u8, data: &[u8]) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         print!("App(0x{:X}):", nr);
 
@@ -32,9 +32,9 @@ impl Handler for TextFormat {
         println!();
     }
 
-    fn handle_app0_jfif(&mut self, position: usize, jfif: &App0Jfif) {
+    fn handle_app0_jfif(&mut self, position: usize, length: usize, jfif: &App0Jfif) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("App(0x0): JFIF");
 
@@ -51,9 +51,9 @@ impl Handler for TextFormat {
         println!("  Thumbnail: {}x{}", jfif.x_thumbnail, jfif.y_thumbnail);
     }
 
-    fn handle_dqt(&mut self, position: usize, tables: &[Dqt]) {
+    fn handle_dqt(&mut self, position: usize, length: usize, tables: &[Dqt]) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("DQT:");
 
@@ -77,9 +77,9 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_dht(&mut self, position: usize, tables: &[Dht]) {
+    fn handle_dht(&mut self, position: usize, length: usize, tables: &[Dht]) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("DHT:");
 
@@ -98,9 +98,9 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_dac(&mut self, position: usize, dac: &Dac) {
+    fn handle_dac(&mut self, position: usize, length: usize, dac: &Dac) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("DAC:");
 
@@ -112,9 +112,9 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_frame(&mut self, position: usize, frame: &Frame) {
+    fn handle_frame(&mut self, position: usize, length: usize, frame: &Frame) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("Frame: {}", frame.get_sof_name());
         println!("  Precision: {}", frame.precision);
@@ -131,9 +131,9 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_scan(&mut self, position: usize, scan: &Scan) {
+    fn handle_scan(&mut self, position: usize, length: usize, scan: &Scan) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("Scan: ");
 
@@ -155,23 +155,23 @@ impl Handler for TextFormat {
         println!("  Data: {} bytes", scan.data.len());
     }
 
-    fn handle_dri(&mut self, position: usize, restart: u16) {
+    fn handle_dri(&mut self, position: usize, length: usize, restart: u16) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("DRI: {}", restart);
     }
 
-    fn handle_rst(&mut self, position: usize, restart: &Rst) {
+    fn handle_rst(&mut self, position: usize, length: usize, restart: &Rst) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("RST({}): Data: {} bytes", restart.nr, restart.data.len());
     }
 
-    fn handle_comment(&mut self, position: usize, data: &[u8]) {
+    fn handle_comment(&mut self, position: usize, length: usize, data: &[u8]) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         if let Ok(comment) = std::str::from_utf8(data) {
             println!("Comment: {}", comment);
@@ -180,23 +180,23 @@ impl Handler for TextFormat {
         }
     }
 
-    fn handle_unknown(&mut self, position: usize, marker: u8, data: &[u8]) {
+    fn handle_unknown(&mut self, position: usize, length: usize, marker: u8, data: &[u8]) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("Unknown(0x{:X}): Length {}", marker, data.len());
     }
 
-    fn handle_eoi(&mut self, position: usize) {
+    fn handle_eoi(&mut self, position: usize, length: usize) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("EOI");
     }
 
-    fn handle_soi(&mut self, position: usize) {
+    fn handle_soi(&mut self, position: usize, length: usize) {
         if self.verbose {
-            print!("0x{:X}: ", position);
+            print!("0x{:X}/0x{:X}: ", position, length);
         }
         println!("SOI");
     }
