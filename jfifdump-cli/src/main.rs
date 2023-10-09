@@ -5,7 +5,7 @@ use std::io::BufReader;
 use std::path::PathBuf;
 use std::process::exit;
 
-use clap::{crate_description, crate_name, crate_version, Arg, Command, value_parser};
+use clap::{crate_description, crate_name, crate_version, Arg, Command, value_parser, ArgAction};
 
 use jfifdump::*;
 
@@ -64,6 +64,7 @@ fn create_clap_app() -> Command {
             Arg::new("VERBOSE")
                 .short('v')
                 .long("verbose")
+                .action(ArgAction::SetTrue)
                 .help("Make output more verbose"),
         )
         .arg(
