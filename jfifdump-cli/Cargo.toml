@@ -1,6 +1,6 @@
 [package]
 name = "jfifdump-cli"
-version = "0.4.0"
+version = "0.5.0"
 description = "Read and dump structure of a jpeg file"
 authors = ["Volker Ströbel <volkerstroebel@mysurdity.de>"]
 edition = "2018"
@@ -17,4 +17,4 @@ doc = false
 
 [dependencies]
 clap = { version = "4.3", features = ["cargo"] }
-jfifdump = { path = "../jfifdump", version = "0.4.0", features = ["json"] }
+jfifdump = { path = "../jfifdump", version = "0.5.0", features = ["json"] }

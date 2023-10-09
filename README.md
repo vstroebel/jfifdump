@@ -31,10 +31,10 @@ Arguments:
   <INPUT>  Jpeg file to use
 
 Options:
-  -f, --format <FORMAT>    Output format [default: text] [possible values: text, json]
-  -v, --verbose <VERBOSE>  Make output more verbose
-  -h, --help               Print help
-  -V, --version            Print version
+  -f, --format <FORMAT>  Output format [default: text] [possible values: text, json]
+  -v, --verbose          Make output more verbose
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ## Using jfifdump as a library
@@ -42,7 +42,7 @@ Options:
 To use jfifdump as a library add the following to your Cargo.toml dependencies:
 
 ```toml
-jfifdump = "0.4"
+jfifdump = "0.5"
 ```
 
 ## Example: Print image dimensions
