@@ -1,6 +1,6 @@
 [package]
 name = "jfifdump"
-version = "0.5.0"
+version = "0.5.1"
 description = "Read and dump structure of a jpeg file"
 authors = ["Volker Ströbel <volkerstroebel@mysurdity.de>"]
 edition = "2018"
