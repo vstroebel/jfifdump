@@ -63,7 +63,8 @@ impl<R: Read> Reader<R> {
     fn read_length(&mut self) -> Result<usize, JfifError> {
         let length = self.read_u16()? as usize;
 
-        if length <= 2 {
+        // lengths 0 and greater are allowed
+        if length < 2 {
             return Err(JfifError::InvalidMarkerLength(length));
         }
 
