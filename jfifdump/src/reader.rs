@@ -160,6 +160,11 @@ impl<R: Read> Reader<R> {
 
         let num_tables = length / 65;
 
+        let remaining = match length.checked_sub(num_tables * 65) {
+            Some(length) => length,
+            None => return Err(JfifError::InvalidDqtSegmentLength(length)),
+        };
+
         let mut tables = vec![];
 
         for _ in 0..num_tables {
@@ -175,7 +180,6 @@ impl<R: Read> Reader<R> {
             });
         }
 
-        let remaining = length - num_tables * 65;
         if remaining > 0 {
             self.skip(remaining)?;
         }
@@ -184,11 +188,13 @@ impl<R: Read> Reader<R> {
     }
 
     fn read_dht(&mut self) -> Result<Vec<Dht>, JfifError> {
-        let mut length = self.read_length()?;
+        let length = self.read_length()?;
 
         let mut tables = vec![];
 
-        while length > 17 {
+        let mut remaining = length;
+
+        while remaining > 17 {
             let (class, destination) = self.read_u4_tuple()?;
             let mut code_lengths = [0u8; 16];
             self.read_exact(&mut code_lengths)?;
@@ -204,11 +210,14 @@ impl<R: Read> Reader<R> {
                 values,
             });
 
-            length -= 17 + num_codes;
+            remaining = match remaining.checked_sub(17 + num_codes) {
+                Some(length) => length,
+                None => return Err(JfifError::InvalidDhtSegmentLength(length)),
+            }
         }
 
-        if length > 0 {
-            self.skip(length)?;
+        if remaining > 0 {
+            self.skip(remaining)?;
         }
 
         Ok(tables)
@@ -250,7 +259,10 @@ impl<R: Read> Reader<R> {
         let selection_end = self.read_u8()?;
         let (approximation_low, approximation_high) = self.read_u4_tuple()?;
 
-        let remaining = length - 1 - num_components as usize * 2 - 3;
+        let remaining = match length.checked_sub(1 + num_components as usize * 2 + 3) {
+            Some(length) => length,
+            None => return Err(JfifError::InvalidScanHeaderLength(length)),
+        };
 
         if remaining > 0 {
             self.skip(remaining)?;
@@ -308,7 +320,10 @@ impl<R: Read> Reader<R> {
         let length = self.read_length()?;
         let restart = self.read_u16()?;
 
-        let remaining = length - 2;
+        let remaining = match length.checked_sub(2) {
+            Some(length) => length,
+            None => return Err(JfifError::InvalidDriLength(length)),
+        };
 
         if remaining > 0 {
             self.skip(remaining)?;
@@ -341,7 +356,10 @@ impl<R: Read> Reader<R> {
             })
         }
 
-        let remaining = length - 6 - num_components as usize * 3;
+        let remaining = match length.checked_sub(6 + num_components as usize * 3) {
+            Some(length) => length,
+            None => return Err(JfifError::InvalidFrameSegmentLength(length)),
+        };
 
         if remaining > 0 {
             self.skip(remaining)?;
