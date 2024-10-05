@@ -357,6 +357,7 @@ impl<R: Read> Reader<R> {
     }
 }
 
+#[derive(Debug)]
 pub enum SegmentKind {
     Soi,
     Eoi,
@@ -395,12 +396,14 @@ pub struct App0Jfif {
     pub thumbnail: Option<Vec<u8>>,
 }
 
+#[derive(Debug)]
 pub struct Dqt {
     pub precision: u8,
     pub dest: u8,
     pub values: Box<[u8; 64]>,
 }
 
+#[derive(Debug)]
 pub struct Dht {
     pub class: u8,
     pub dest: u8,
@@ -408,22 +411,26 @@ pub struct Dht {
     pub values: Vec<u8>,
 }
 
+#[derive(Debug)]
 pub struct DacParam {
     pub class: u8,
     pub dest: u8,
     pub value: u8,
 }
 
+#[derive(Debug)]
 pub struct Dac {
     pub params: Vec<DacParam>,
 }
 
+#[derive(Debug)]
 pub struct ScanComponent {
     pub id: u8,
     pub dc_table: u8,
     pub ac_table: u8,
 }
 
+#[derive(Debug)]
 pub struct Scan {
     pub components: Vec<ScanComponent>,
     pub selection_start: u8,
@@ -433,11 +440,13 @@ pub struct Scan {
     pub data: Vec<u8>,
 }
 
+#[derive(Debug)]
 pub struct Rst {
     pub nr: u8,
     pub data: Vec<u8>,
 }
 
+#[derive(Debug)]
 pub struct FrameComponent {
     pub id: u8,
     pub horizontal_sampling_factor: u8,
@@ -445,6 +454,7 @@ pub struct FrameComponent {
     pub quantization_table: u8,
 }
 
+#[derive(Debug)]
 pub struct Frame {
     pub sof: u8,
     pub precision: u8,
