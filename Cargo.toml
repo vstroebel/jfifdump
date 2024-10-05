@@ -2,4 +2,5 @@
 members = [
     "jfifdump",
     "jfifdump-cli",
+    "fuzz"
 ]
